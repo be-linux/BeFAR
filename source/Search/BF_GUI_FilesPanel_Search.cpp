@@ -296,7 +296,7 @@ BF_GUI_FilesPanel_Search::Run_OnBootVolume()
 			BF_Dialog_Alert_Sep_Error(uRes,poDialogParent);
 			return;
 		}
-		BVolume oVol(uRef.device);
+		BVolume oVol(uRef.vdevice());
 		uRes = oVol.InitCheck();
 		if(uRes!=B_OK){
 			BF_Dialog_Alert_Sep_Error(uRes,poDialogParent);		

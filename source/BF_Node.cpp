@@ -306,7 +306,7 @@ BF_Volume::LoadInfo()
 {	
 	bLoadedOk = false; 
 	
-	BVolume oVol(uNodeRef.device);	
+	BVolume oVol(uNodeRef.vdevice());
 	bLoadedOk = B_OK==oVol.InitCheck();
 	if(!bLoadedOk) return;
 	

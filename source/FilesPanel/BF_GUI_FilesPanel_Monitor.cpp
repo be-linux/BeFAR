@@ -9,16 +9,16 @@
 #include <NodeMonitor.h>
 
 
-void					
+void
 BF_GUI_FilesPanel::HandlingMonitor(BMessage &o_Message)
 {
 	int32 iOpCode=0;
-	if(B_OK!=o_Message.FindInt32("opcode",&iOpCode)) return;		
-	
-	/* get node_ref */ 
+	if(B_OK!=o_Message.FindInt32("opcode",&iOpCode)) return;
+
+	/* get node_ref */
 	node_ref uRef;
-	o_Message.FindInt32("device", &uRef.device); 
-	o_Message.FindInt64("node", &uRef.node); 	
+	if (B_OK != o_Message.FindNodeRef("virtual:node", &uRef)) return;
+
 	switch(iOpCode){
 	case B_ENTRY_REMOVED:
 		HandlingMonitor_Removed(o_Message,uRef);
@@ -33,82 +33,80 @@ BF_GUI_FilesPanel::HandlingMonitor(BMessage &o_Message)
 		HandlingMonitor_Changed(o_Message,uRef);
 		break;
 	};
-	
 }
 
 
-void					
+void
 BF_GUI_FilesPanel::HandlingMonitor_Removed(BMessage &o_Message,node_ref & u_Ref)
 {
 	/* seek this node in current node_list */
 	BF_Node *poNode = loNode.NodeByRef(u_Ref);
-	if(!poNode) return;		
+	if(!poNode) return;
 
 	Nodes_Remove(poNode,NULL);
 	DELETE(poNode);
-}		
+}
 
 
-void					
+void
 BF_GUI_FilesPanel::HandlingMonitor_Moved(BMessage &o_Message,node_ref & u_Ref)
-{		
-	/* get source and destination dirs*/
-	node_ref uRefSrcDir,uRefDestDir;
-	uRefSrcDir.device = u_Ref.device;
-	if(B_OK!=o_Message.FindInt64("from directory",&uRefSrcDir.node)) return;
-	if(B_OK!=o_Message.FindInt64("to directory",&uRefDestDir.node)) return;
-	if(B_OK!=o_Message.FindInt32("device",&uRefDestDir.device)) return;
-	
+{
+	/* get source and destination dirs */
+	node_ref uRefSrcDir, uRefDestDir;
+
+	if (B_OK != o_Message.FindNodeRef("virtual:from directory", &uRefSrcDir)) return;
+	if (B_OK != o_Message.FindNodeRef("virtual:to directory",   &uRefDestDir)) return;
+
 	/* if renamed */
 	if(oPath.CheckNodeRef(uRefSrcDir) && oPath.CheckNodeRef(uRefDestDir)){
 		const char *pcNodeName=NULL;
 		ASSERT(B_OK==o_Message.FindString("name",&pcNodeName) && pcNodeName);
 		BF_Node *poNode = loNode.NodeByRef(u_Ref);
-		if(!poNode) return;		
+		if(!poNode) return;
 		poNode->sName = pcNodeName;
-		
-		Nodes_Update(poNode,NULL);		
+
+		Nodes_Update(poNode,NULL);
 	}else
 	/* if moved from this panel */
 	if(oPath.CheckNodeRef(uRefSrcDir)){
 		/* seek this node in current node_list */
 		BF_Node *poNode = loNode.NodeByRef(u_Ref);
-		if(!poNode) return;		
-		
+		if(!poNode) return;
+
 		Nodes_Remove(poNode,NULL);
-		DELETE(poNode);		
+		DELETE(poNode);
 	}else
 	/* if moved to this panel */
 	if(oPath.CheckNodeRef(uRefDestDir)){
 		const char *pcNodeName=NULL;
 		ASSERT(B_OK==o_Message.FindString("name",&pcNodeName) && pcNodeName);
-		BF_Node *poNode = BF_Roster_LoadNode(oPath.Path(),pcNodeName,LoadStyles());	
+		BF_Node *poNode = BF_Roster_LoadNode(oPath.Path(),pcNodeName,LoadStyles());
 		if(!poNode)	 return;
-		Nodes_Add(poNode,NULL);	
+		Nodes_Add(poNode,NULL);
 	}else
 	/* curent dir moved */
 	if(oPath.CheckNodeRef(u_Ref)){
 		NavGoParentDir();
-	}	
+	}
 }
 
-void					
+void
 BF_GUI_FilesPanel::HandlingMonitor_Created(BMessage &o_Message,node_ref & u_Ref)
 {
 	const char *pcNodeName=NULL;
 	ASSERT(B_OK==o_Message.FindString("name",&pcNodeName) && pcNodeName);
-	BF_Node *poNode = BF_Roster_LoadNode(oPath.Path(),pcNodeName,LoadStyles());			
+	BF_Node *poNode = BF_Roster_LoadNode(oPath.Path(),pcNodeName,LoadStyles());
 	if(!poNode)	 return;
-	Nodes_Add(poNode,NULL);		
+	Nodes_Add(poNode,NULL);
 }
 
-void					
+void
 BF_GUI_FilesPanel::HandlingMonitor_Changed(BMessage &o_Message,node_ref & u_Ref)
 {
 	BF_Node *poNode = loNode.NodeByRef(u_Ref);
 	if(!poNode) return;
-	
+
 	BF_Roster_ReloadNode(oPath.Path(),poNode,LoadStyles());
-	
+
 	Nodes_Update(poNode,NULL);
 }
