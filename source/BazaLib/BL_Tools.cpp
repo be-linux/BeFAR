@@ -373,42 +373,31 @@ BL_String::operator=(BString & s_Value)
 }
 
 BL_String*
-BL_String::SetDigits(char c_Digit,char c_DecPointChar)
+BL_String::SetDigits(char c_Digit, char c_DecPointChar)
 {
-	BString sResult;
-	/* check for zero  */
-	if(Length()==0){
+	if (Length() == 0) {
 		SetTo("0");
 		return this;
 	}
-	/* check for dec_point */
-	// sz: 09.05.2009 - incompat with Haiku API!
-	//char *pc,*pcZero = strchr(_privateData,c_DecPointChar);
-	char *pcZero = strchr(String(),c_DecPointChar);
-	if(pcZero) pcZero[0]='\0';
-	// sz: 09.05.2009 - incompat with Haiku API!
-	//pc = _privateData;
-	char* pc = (char*)String();
-	/* set digits */
-	int 	iLen = strlen(pc);
-	char	c1;
-	for(int i = (iLen % 3), i1=0; i<=iLen; i+=3){
-		if(i==0) continue;
-		c1 = pc[i];
-		pc[i] =	'\0';
-		sResult << (pc+i1);
-		pc[i] =	c1;
-		i1 = i;
-		if(i!=iLen) sResult << c_Digit;
+
+	const char *pc = String();
+	const char *pcZero = strchr(pc, c_DecPointChar);
+
+	int iLen = pcZero ? (int)(pcZero - pc) : (int)strlen(pc);
+
+	BString sResult;
+	for (int i = 0; i < iLen; ++i) {
+		if (i > 0 && ((iLen - i) % 3) == 0)
+			sResult << c_Digit;
+		sResult << pc[i];
 	}
-	/* set dec */
-	if(pcZero){
-		pcZero[0] = c_DecPointChar;
-		sResult << (pcZero+1);
+
+	if (pcZero) {
+		sResult << c_DecPointChar;
+		sResult << (pcZero + 1);
 	}
-	/* finish */
+
 	SetTo(sResult);
-	
 	return this;
 }
 

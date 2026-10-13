@@ -10,8 +10,8 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TrackerAddOns"
 
-#define ADDONS_FOLDER_SYS 	"/boot/home/config/add-ons/Tracker"
-#define ADDONS_FOLDER_HOME 	"/boot/system/add-ons/Tracker"
+#define ADDONS_FOLDER_SYS 	"/home/config/add-ons/Tracker"
+#define ADDONS_FOLDER_HOME 	"/system/add-ons/Tracker"
 #define WIN_TITLE "Tracker Add-Ons"
 
 void
@@ -106,7 +106,7 @@ BF_GUI_FilesPanel::Action_Tracker_Addons_Start()
 	return;
 }
 
-#include <be/add-ons/tracker/TrackerAddOn.h>
+#include <add-ons/tracker/TrackerAddOn.h>
 
 
 int32 
